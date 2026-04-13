@@ -1,0 +1,795 @@
+import { useState, useEffect } from "react";
+
+// ═══════════════════════════════════════════════
+//  DATA
+// ═══════════════════════════════════════════════
+
+const BLOCKS = [
+  { id: 1,  start:"05:00", end:"09:00", title:"Estudio y construcción de SaaS con IA",     icon:"🤖", pts:40, tag:"DEEP WORK"  },
+  { id: 2,  start:"09:00", end:"10:00", title:"Creación de contenido (academia y aromas)",  icon:"📱", pts:10, tag:"CONTENIDO" },
+  { id: 3,  start:"10:00", end:"11:00", title:"Negocio Successful Aromas",                  icon:"🌸", pts:10, tag:"AROMAS"    },
+  { id: 4,  start:"11:00", end:"12:00", title:"Negocio Successful Aromas",                  icon:"🌸", pts:10, tag:"AROMAS"    },
+  { id: 5,  start:"12:00", end:"12:30", title:"Oración y Palabra de Dios",                  icon:"✝️", pts:5,  tag:"FE"        },
+  { id: 6,  start:"12:30", end:"13:00", title:"Ghost y Sacha — paseo",                      icon:"🐕", pts:5,  tag:"BIENESTAR" },
+  { id: 7,  start:"13:00", end:"14:00", title:"Almuerzo",                                   icon:"🍽️", pts:5,  tag:"DESCANSO"  },
+  { id: 8,  start:"14:00", end:"15:00", title:"Neurociencia y mentalidad",                  icon:"🧠", pts:10, tag:"ESTUDIO"   },
+  { id: 9,  start:"15:00", end:"16:00", title:"Podcast educativo",                          icon:"🎧", pts:8,  tag:"ESTUDIO"   },
+  { id:10,  start:"16:00", end:"16:30", title:"Planificación del día",                      icon:"📋", pts:5,  tag:"SISTEMA"   },
+  { id:11,  start:"16:30", end:"17:30", title:"Ejercicio físico",                           icon:"💪", pts:10, tag:"CUERPO"    },
+  { id:12,  start:"17:30", end:"18:30", title:"Mamá, abuelita + WhatsApp",                  icon:"📞", pts:8,  tag:"FAMILIA"   },
+  { id:13,  start:"18:30", end:"20:30", title:"Tareas pendientes o reuniones",              icon:"⚡", pts:20, tag:"TRABAJO"   },
+  { id:14,  start:"20:30", end:"22:30", title:"Transporte / actividades externas",          icon:"🚗", pts:10, tag:"MOVIDAD"   },
+];
+
+const STEPS = [
+  "Definir idea del SaaS de perfumería",
+  "Investigar mercado de perfumería digital",
+  "Identificar el problema principal del cliente",
+  "Definir propuesta de valor única",
+  "Crear perfil del cliente ideal (ICP)",
+  "Diseñar wireframes del producto",
+  "Diseñar UI/UX completo de la app",
+  "Definir arquitectura de base de datos",
+  "Configurar entorno de desarrollo local",
+  "Crear repositorio en GitHub",
+  "Configurar proyecto en Supabase",
+  "Diseñar y crear esquema de tablas",
+  "Implementar sistema de autenticación",
+  "Crear gestión de perfil de usuario",
+  "Construir catálogo de perfumes",
+  "Implementar sistema de búsqueda",
+  "Agregar filtros avanzados de producto",
+  "Crear ficha detallada de producto",
+  "Construir carrito de compras",
+  "Implementar sistema de pedidos",
+  "Crear panel de administración",
+  "Implementar gestión de inventario",
+  "Crear módulo de gestión de clientes",
+  "Construir dashboard de ventas y métricas",
+  "Integrar pasarela de pago (Stripe)",
+  "Crear sistema de cupones y descuentos",
+  "Implementar sistema de envíos y logística",
+  "Configurar notificaciones por email",
+  "Crear sistema de reviews y valoraciones",
+  "Diseñar y construir landing page",
+  "Implementar SEO técnico básico",
+  "Configurar dominio personalizado",
+  "Configurar SSL y seguridad HTTPS",
+  "Redactar política de privacidad",
+  "Redactar términos y condiciones",
+  "Implementar Google Analytics 4",
+  "Definir y publicar estructura de precios",
+  "Crear estrategia de marketing digital",
+  "Configurar campañas en Meta Ads",
+  "Crear contenido inicial para redes sociales",
+  "Lanzar versión beta privada",
+  "Recopilar y analizar feedback de beta users",
+  "Iterar producto según feedback recibido",
+  "Implementar sistema de referidos",
+  "Crear planes de suscripción y membresía",
+  "Desarrollar app móvil con React Native",
+  "Escalar infraestructura en la nube",
+  "Crear programa de afiliados",
+  "Desarrollar estrategia de expansión LATAM",
+  "🚀 Lanzamiento oficial v1.0",
+];
+
+const QUOTES = [
+  { text:"Del observador que eres, al líder que puedes ser.", by:"Jhon Rojas" },
+  { text:"La consistencia es el superpoder que pocos están dispuestos a desarrollar.", by:"" },
+  { text:"Tu SaaS no se construye en un día. Se construye en cada bloque de tiempo.", by:"" },
+  { text:"Cada línea de código es una inversión en tu libertad financiera.", by:"" },
+  { text:"El sistema nervioso recuerda lo que repites. Sé imparable.", by:"Joe Dispenza" },
+  { text:"No son las circunstancias las que determinan tu futuro. Es tu observación de ellas.", by:"R. Echeverría" },
+  { text:"Los ganadores hacen lo que los perdedores no quieren hacer.", by:"" },
+  { text:"Hoy es el Día 1. Siempre es el Día 1.", by:"Jeff Bezos" },
+  { text:"La fragancia adecuada activa el sistema límbico en 0.2 segundos. Tu producto cambia estados.", by:"" },
+  { text:"Un fundador que no construye todos los días, no es un fundador. Es un soñador.", by:"" },
+];
+
+const PERSONAL_GOALS = [
+  { title:"Maestría Coaching Ontológico", icon:"🧬", total:8,  done:3,  color:"#8844ff" },
+  { title:"Successful Aromas Digital",    icon:"🌸", total:10, done:2,  color:"#cc2222" },
+  { title:"SaaS de Perfumería",           icon:"🚀", total:50, done:0,  color:"#f0a020", dynamic:true },
+  { title:"Oratoria y Liderazgo",         icon:"🎙️", total:6,  done:1,  color:"#22aaff" },
+  { title:"Fitness y Salud",              icon:"💪", total:52, done:0,  color:"#22cc7a", dynamic:true, blockId:11 },
+];
+
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+
+const toMins = (t) => { const [h,m] = t.split(":").map(Number); return h*60+m; };
+const getActive = (now) => {
+  const tm = now.getHours()*60 + now.getMinutes();
+  return BLOCKS.find(b => tm >= toMins(b.start) && tm < toMins(b.end)) || null;
+};
+const fmtTime = (d) => d.toLocaleTimeString("es-CO",{hour:"2-digit",minute:"2-digit"});
+const fmtDate = (d) => d.toLocaleDateString("es-CO",{weekday:"long",day:"numeric",month:"long"});
+const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// ═══════════════════════════════════════════════
+//  DESIGN TOKENS
+// ═══════════════════════════════════════════════
+
+const C = {
+  bg:      "#05050e",
+  surface: "#0c0c1c",
+  surfaceB:"#121228",
+  border:  "#181838",
+  gold:    "#f0a020",
+  goldDim: "#7a5010",
+  crimson: "#cc2222",
+  green:   "#22cc7a",
+  blue:    "#2255ff",
+  text:    "#d4d4f0",
+  muted:   "#50508a",
+  dim:     "#1a1a38",
+};
+
+// ═══════════════════════════════════════════════
+//  MICRO-COMPONENTS
+// ═══════════════════════════════════════════════
+
+function Ring({ pct=0, size=80, stroke=6, color=C.gold, children }) {
+  const r = (size - stroke) / 2;
+  const circ = 2 * Math.PI * r;
+  const dash = Math.min(1, pct / 100) * circ;
+  return (
+    <div style={{ position:"relative", width:size, height:size, flexShrink:0 }}>
+      <svg width={size} height={size} style={{ transform:"rotate(-90deg)" }}>
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={C.dim} strokeWidth={stroke} />
+        <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke}
+          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
+          style={{ transition:"stroke-dasharray 0.6s ease" }} />
+      </svg>
+      <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function Bar({ pct=0, color=C.gold, height=5 }) {
+  return (
+    <div style={{ height, background:C.dim, borderRadius:height/2, overflow:"hidden" }}>
+      <div style={{ height:"100%", width:`${Math.min(100,pct)}%`, background:color, borderRadius:height/2, transition:"width 0.6s ease" }} />
+    </div>
+  );
+}
+
+function Badge({ text, color=C.gold, bg="" }) {
+  return (
+    <span style={{
+      fontSize:9, letterSpacing:1.5, textTransform:"uppercase", fontWeight:700,
+      padding:"2px 7px", borderRadius:4,
+      background: bg || `${color}22`, color,
+    }}>{text}</span>
+  );
+}
+
+function Toast({ msg, onDone }) {
+  useEffect(() => { const t = setTimeout(onDone, 3200); return () => clearTimeout(t); }, []);
+  return (
+    <div style={{
+      position:"fixed", top:20, left:"50%", transform:"translateX(-50%)",
+      background:C.gold, color:"#000", padding:"11px 20px", borderRadius:14,
+      fontWeight:700, fontSize:13, maxWidth:310, textAlign:"center",
+      zIndex:9999, boxShadow:`0 4px 24px ${C.gold}55`,
+      animation:"fid 0.3s ease",
+    }}>⚡ {msg}</div>
+  );
+}
+
+function SectionHeader({ label, title }) {
+  return (
+    <div style={{ marginBottom:20 }}>
+      <div style={{ fontSize:10, color:C.muted, letterSpacing:2.5, textTransform:"uppercase", marginBottom:5 }}>{label}</div>
+      <h2 style={{ fontSize:22, fontWeight:800, color:C.text, margin:0, lineHeight:1.2 }}>{title}</h2>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  VIEW: DASHBOARD
+// ═══════════════════════════════════════════════
+
+function Dashboard({ completedBlocks, completedSteps, points, now, activeBlock }) {
+  const totalPts = BLOCKS.reduce((s,b) => s+b.pts, 0);
+  const dayPct = Math.round((completedBlocks.length / BLOCKS.length) * 100);
+  const saasPct = Math.round((completedSteps.length / STEPS.length) * 100);
+  const pending = BLOCKS.filter(b => !completedBlocks.includes(b.id));
+
+  return (
+    <div style={{ padding:"20px 16px" }}>
+      {/* Greeting */}
+      <div style={{ marginBottom:22 }}>
+        <div style={{ fontSize:11, color:C.muted, letterSpacing:2, textTransform:"uppercase", marginBottom:5 }}>
+          {capitalize(fmtDate(now))}
+        </div>
+        <h1 style={{ fontSize:27, fontWeight:900, color:C.text, margin:0, lineHeight:1.15 }}>
+          Buenos días,<br />
+          <span style={{ color:C.gold }}>Jhon Rojas</span>
+        </h1>
+      </div>
+
+      {/* Active block banner */}
+      {activeBlock ? (
+        <div style={{
+          background:`linear-gradient(135deg, ${C.gold}1a 0%, transparent 100%)`,
+          border:`1px solid ${C.gold}44`, borderRadius:16, padding:"15px 16px",
+          marginBottom:18, position:"relative", overflow:"hidden",
+        }}>
+          <div style={{ position:"absolute", right:12, top:-8, fontSize:54, opacity:0.08 }}>{activeBlock.icon}</div>
+          <Badge text="● AHORA" color={C.gold} bg={`${C.gold}33`} />
+          <div style={{ fontSize:16, fontWeight:700, color:C.text, marginTop:8 }}>
+            {activeBlock.icon} {activeBlock.title}
+          </div>
+          <div style={{ fontSize:12, color:C.muted, marginTop:4 }}>
+            {activeBlock.start} – {activeBlock.end} · +{activeBlock.pts} pts
+          </div>
+        </div>
+      ) : (
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:"14px 16px", marginBottom:18 }}>
+          <div style={{ fontSize:13, color:C.muted }}>🌙 Fuera del horario activo — descansa y recarga.</div>
+        </div>
+      )}
+
+      {/* Dual progress */}
+      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:12 }}>
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:"16px 14px", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+          <Ring pct={dayPct} size={68} stroke={6} color={C.gold}>
+            <span style={{ fontSize:14, fontWeight:900, color:C.gold }}>{dayPct}%</span>
+          </Ring>
+          <div style={{ textAlign:"center" }}>
+            <div style={{ fontSize:10, color:C.muted, letterSpacing:1, textTransform:"uppercase" }}>Día de hoy</div>
+            <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{completedBlocks.length}/{BLOCKS.length}</div>
+          </div>
+        </div>
+        <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:"16px 14px", display:"flex", flexDirection:"column", alignItems:"center", gap:8 }}>
+          <Ring pct={saasPct} size={68} stroke={6} color={C.crimson}>
+            <span style={{ fontSize:14, fontWeight:900, color:C.crimson }}>{saasPct}%</span>
+          </Ring>
+          <div style={{ textAlign:"center" }}>
+            <div style={{ fontSize:10, color:C.muted, letterSpacing:1, textTransform:"uppercase" }}>SaaS Build</div>
+            <div style={{ fontSize:13, fontWeight:700, color:C.text }}>{completedSteps.length}/{STEPS.length}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Points */}
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:"14px 18px", marginBottom:20, display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+        <div>
+          <div style={{ fontSize:10, color:C.muted, letterSpacing:1.5, textTransform:"uppercase", marginBottom:2 }}>Puntos hoy</div>
+          <div style={{ fontSize:34, fontWeight:900, color:C.gold, lineHeight:1 }}>
+            {points}<span style={{ fontSize:15, color:C.muted }}>/{totalPts}</span>
+          </div>
+        </div>
+        <div style={{ textAlign:"right" }}>
+          <div style={{ fontSize:28 }}>⚡</div>
+          <div style={{ fontSize:11, color:C.muted }}>{completedBlocks.length} bloques</div>
+        </div>
+      </div>
+      <Bar pct={(points/totalPts)*100} color={C.gold} height={4} />
+
+      {/* Pending blocks preview */}
+      {pending.length > 0 && (
+        <>
+          <div style={{ marginTop:22, marginBottom:10, fontSize:10, letterSpacing:2, color:C.muted, textTransform:"uppercase" }}>
+            Próximos bloques
+          </div>
+          {pending.slice(0,3).map(b => (
+            <div key={b.id} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:12, padding:"11px 14px", marginBottom:7, display:"flex", alignItems:"center", gap:12 }}>
+              <div style={{ fontSize:22 }}>{b.icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:C.text }}>{b.title}</div>
+                <div style={{ fontSize:11, color:C.muted }}>{b.start} – {b.end}</div>
+              </div>
+              <div style={{ fontSize:11, color:C.goldDim, fontWeight:700 }}>+{b.pts}pts</div>
+            </div>
+          ))}
+        </>
+      )}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  VIEW: DÍA
+// ═══════════════════════════════════════════════
+
+function DayView({ completedBlocks, onToggle, activeBlock }) {
+  const done = completedBlocks.length;
+  const pct = Math.round((done / BLOCKS.length) * 100);
+
+  return (
+    <div style={{ padding:"20px 16px" }}>
+      <SectionHeader label="Estructura diaria" title={`16 horas · 14 bloques`} />
+
+      <div style={{ display:"flex", alignItems:"center", gap:14, marginBottom:20, background:C.surface, border:`1px solid ${C.border}`, borderRadius:14, padding:"12px 16px" }}>
+        <Ring pct={pct} size={52} stroke={5} color={C.gold}>
+          <span style={{ fontSize:11, fontWeight:900, color:C.gold }}>{pct}%</span>
+        </Ring>
+        <div>
+          <div style={{ fontSize:15, fontWeight:800, color:C.text }}>{done} de {BLOCKS.length} bloques</div>
+          <div style={{ fontSize:12, color:C.muted }}>{BLOCKS.length - done} pendientes hoy</div>
+        </div>
+      </div>
+
+      {BLOCKS.map(b => {
+        const isDone = completedBlocks.includes(b.id);
+        const isNow = activeBlock?.id === b.id;
+        return (
+          <div key={b.id} style={{
+            background: isDone ? `${C.green}10` : isNow ? `${C.gold}0d` : C.surface,
+            border: `1px solid ${isDone ? C.green+"33" : isNow ? C.gold+"55" : C.border}`,
+            borderRadius:14, padding:"13px 14px", marginBottom:7,
+            display:"flex", alignItems:"center", gap:12,
+            opacity: isDone ? 0.7 : 1,
+            transition:"all 0.2s ease",
+          }}>
+            <div style={{ fontSize:24, minWidth:32, textAlign:"center" }}>{b.icon}</div>
+            <div style={{ flex:1 }}>
+              <div style={{ display:"flex", gap:5, marginBottom:5, flexWrap:"wrap", alignItems:"center" }}>
+                <Badge text={isNow ? "● AHORA" : b.tag} color={isNow ? C.gold : C.muted} bg={isNow ? `${C.gold}33` : C.dim} />
+                <span style={{ fontSize:10, color:C.muted }}>{b.start}–{b.end}</span>
+              </div>
+              <div style={{ fontSize:14, fontWeight:600, color: isDone ? C.muted : C.text, textDecoration: isDone ? "line-through" : "none" }}>
+                {b.title}
+              </div>
+              <div style={{ fontSize:11, color:C.muted, marginTop:3 }}>+{b.pts} pts</div>
+            </div>
+            <button onClick={() => onToggle(b.id)} style={{
+              width:40, height:40, borderRadius:"50%", flexShrink:0,
+              background: isDone ? C.green : "transparent",
+              border: `2px solid ${isDone ? C.green : C.muted}`,
+              cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:17, color: isDone ? "#000" : C.muted,
+              transition:"all 0.2s", fontWeight:900,
+            }}>
+              {isDone ? "✓" : "○"}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  VIEW: SAAS
+// ═══════════════════════════════════════════════
+
+function SaasView({ completedSteps, onToggle }) {
+  const pct = Math.round((completedSteps.length / STEPS.length) * 100);
+  const nextIdx = STEPS.findIndex((_, i) => !completedSteps.includes(i));
+  const [filter, setFilter] = useState("all"); // all | pending | done
+
+  const filtered = STEPS.map((s,i) => ({s,i})).filter(({i}) => {
+    if (filter === "done") return completedSteps.includes(i);
+    if (filter === "pending") return !completedSteps.includes(i);
+    return true;
+  });
+
+  return (
+    <div style={{ padding:"20px 16px" }}>
+      <SectionHeader label="Proyecto principal" title="SaaS de Perfumería" />
+
+      {/* Big progress card */}
+      <div style={{
+        background:`linear-gradient(135deg, ${C.crimson}15, ${C.gold}08)`,
+        border:`1px solid ${C.crimson}33`, borderRadius:18, padding:18, marginBottom:16,
+        display:"flex", alignItems:"center", gap:16,
+      }}>
+        <Ring pct={pct} size={86} stroke={7} color={C.crimson}>
+          <span style={{ fontSize:18, fontWeight:900, color:C.crimson }}>{pct}%</span>
+        </Ring>
+        <div>
+          <div style={{ fontSize:30, fontWeight:900, color:C.text, lineHeight:1 }}>
+            {completedSteps.length}<span style={{ fontSize:16, color:C.muted }}>/{STEPS.length}</span>
+          </div>
+          <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>pasos completados</div>
+          {nextIdx >= 0 && (
+            <div style={{ fontSize:11, color:C.gold, marginTop:6, fontWeight:600 }}>
+              → Paso {nextIdx+1}: {STEPS[nextIdx].slice(0,30)}...
+            </div>
+          )}
+        </div>
+      </div>
+      <Bar pct={pct} color={`linear-gradient(90deg,${C.crimson},${C.gold})`} height={5} />
+
+      {/* Filter tabs */}
+      <div style={{ display:"flex", gap:6, marginTop:18, marginBottom:14 }}>
+        {[["all","Todos"],["pending","Pendientes"],["done","✓ Listos"]].map(([v,l]) => (
+          <button key={v} onClick={() => setFilter(v)} style={{
+            flex:1, padding:"8px 4px", borderRadius:10, border:`1px solid ${filter===v ? C.gold+"55" : C.border}`,
+            background: filter===v ? `${C.gold}15` : C.surface,
+            color: filter===v ? C.gold : C.muted, fontSize:11, fontWeight:700,
+            cursor:"pointer", transition:"all 0.2s",
+          }}>{l}</button>
+        ))}
+      </div>
+
+      {/* Steps */}
+      {filtered.map(({s,i}) => {
+        const done = completedSteps.includes(i);
+        const isNext = i === nextIdx;
+        return (
+          <div key={i} style={{
+            background: done ? `${C.green}0d` : isNext ? `${C.gold}0a` : C.surface,
+            border:`1px solid ${done ? C.green+"2a" : isNext ? C.gold+"44" : C.border}`,
+            borderRadius:12, padding:"11px 13px", marginBottom:6,
+            display:"flex", alignItems:"center", gap:11,
+          }}>
+            <div style={{
+              width:28, height:28, borderRadius:"50%", flexShrink:0,
+              background: done ? C.green : isNext ? C.goldDim : C.dim,
+              display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:11, fontWeight:900,
+              color: done ? "#000" : isNext ? C.gold : C.muted,
+            }}>
+              {done ? "✓" : i+1}
+            </div>
+            <div style={{ flex:1, fontSize:13, color: done ? C.muted : C.text,
+              textDecoration: done ? "line-through" : "none",
+              fontWeight: isNext ? 700 : 400 }}>
+              {s}
+            </div>
+            <button onClick={() => onToggle(i)} style={{
+              background:"none", border:"none", cursor:"pointer",
+              fontSize:18, color: done ? C.green : C.muted, padding:"0 4px",
+            }}>
+              {done ? "✓" : "○"}
+            </button>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  VIEW: METAS
+// ═══════════════════════════════════════════════
+
+function GoalsView({ completedSteps, completedBlocks }) {
+  const goals = PERSONAL_GOALS.map(g => ({
+    ...g,
+    done: g.dynamic
+      ? (g.blockId
+          ? completedBlocks.filter(id => id === g.blockId).length * 2
+          : completedSteps.length)
+      : g.done,
+  }));
+
+  return (
+    <div style={{ padding:"20px 16px" }}>
+      <SectionHeader label="Visión a largo plazo" title="Metas Personales" />
+
+      {goals.map((g,i) => {
+        const pct = Math.min(100, Math.round((g.done / g.total)*100));
+        return (
+          <div key={i} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:16, marginBottom:12 }}>
+            <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:12 }}>
+              <div style={{ fontSize:30 }}>{g.icon}</div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontSize:15, fontWeight:700, color:C.text }}>{g.title}</div>
+                <div style={{ fontSize:12, color:C.muted, marginTop:2 }}>{g.done} / {g.total} pasos · {pct}%</div>
+              </div>
+              <div style={{ fontSize:16, fontWeight:900, color:g.color }}>{pct}%</div>
+            </div>
+            <Bar pct={pct} color={g.color} height={6} />
+          </div>
+        );
+      })}
+
+      {/* Observer model card */}
+      <div style={{
+        background:`linear-gradient(135deg, ${C.gold}12, ${C.crimson}08)`,
+        border:`1px solid ${C.gold}30`, borderRadius:18, padding:18, marginTop:8,
+      }}>
+        <div style={{ fontSize:10, letterSpacing:2, color:C.gold, textTransform:"uppercase", marginBottom:10 }}>
+          Tu framework
+        </div>
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:12 }}>
+          {["Observador","→","Acción","→","Resultado"].map((item,i) => (
+            <div key={i} style={{
+              fontSize: item==="→" ? 16 : 12,
+              fontWeight: item==="→" ? 400 : 700,
+              color: item==="→" ? C.muted : C.text,
+              textAlign:"center",
+            }}>{item}</div>
+          ))}
+        </div>
+        <div style={{ fontSize:13, color:C.muted, fontStyle:"italic", lineHeight:1.6 }}>
+          "Del observador que eres, al líder que puedes ser."
+        </div>
+      </div>
+
+      {/* 36-month vision */}
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:16, marginTop:12 }}>
+        <div style={{ fontSize:10, letterSpacing:2, color:C.crimson, textTransform:"uppercase", marginBottom:12 }}>
+          Roadmap 36 meses
+        </div>
+        {[
+          { yr:"Año 1", desc:"Lanzar SaaS + primer programa de transformación", active:true },
+          { yr:"Año 2", desc:"Escalar programas grupales y eventos en LATAM", active:false },
+          { yr:"Año 3", desc:"Certificación de facilitadores + presencia panregional", active:false },
+        ].map((item,i) => (
+          <div key={i} style={{ display:"flex", gap:12, marginBottom: i<2 ? 12 : 0 }}>
+            <div style={{ display:"flex", flexDirection:"column", alignItems:"center" }}>
+              <div style={{ width:10, height:10, borderRadius:"50%", background: item.active ? C.gold : C.dim, marginTop:3 }} />
+              {i < 2 && <div style={{ width:1, height:28, background:C.border, margin:"3px 0" }} />}
+            </div>
+            <div>
+              <div style={{ fontSize:12, fontWeight:700, color: item.active ? C.gold : C.muted }}>{item.yr}</div>
+              <div style={{ fontSize:12, color:C.muted, lineHeight:1.5 }}>{item.desc}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  VIEW: ENERGÍA
+// ═══════════════════════════════════════════════
+
+function EnergyView({ points, completedBlocks, completedSteps }) {
+  const [qIdx, setQIdx] = useState(() => Math.floor(Math.random() * QUOTES.length));
+  const [aiMsg, setAiMsg] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+
+  const dayPct = Math.round((completedBlocks.length / BLOCKS.length) * 100);
+  const saasPct = Math.round((completedSteps.length / STEPS.length) * 100);
+  const totalPts = BLOCKS.reduce((s,b)=>s+b.pts,0);
+
+  const getAiMotivation = async () => {
+    setAiLoading(true);
+    setAiMsg("");
+    try {
+      const res = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514",
+          max_tokens:1000,
+          system:`Eres el coach personal de Jhon Rojas, un fundador colombiano que está construyendo un SaaS de perfumería mientras gestiona una academia de coaching ontológico (ADH Coaching Academy). 
+Su filosofía se basa en Rafael Echeverría y Joe Dispenza. Su lema es "Del observador que eres, al líder que puedes ser."
+Genera un mensaje motivacional MUY personalizado, poderoso y breve (máximo 3 oraciones). Habla directamente a Jhon. Usa español. Sin emojis excesivos.`,
+          messages:[{
+            role:"user",
+            content:`Jhon ha completado ${completedBlocks.length} de ${BLOCKS.length} bloques hoy (${dayPct}%), ${completedSteps.length} de ${STEPS.length} pasos de su SaaS (${saasPct}%) y acumuló ${points} de ${totalPts} puntos. Escribe su mensaje de hoy.`
+          }]
+        })
+      });
+      const data = await res.json();
+      const text = data.content?.find(c=>c.type==="text")?.text || "Sigue adelante, Jhon.";
+      setAiMsg(text);
+    } catch {
+      setAiMsg("La conexión falló, pero tu misión continúa. Cada bloque completado es una victoria real.");
+    }
+    setAiLoading(false);
+  };
+
+  return (
+    <div style={{ padding:"20px 16px" }}>
+      <SectionHeader label="Combustible mental" title="Energía del día" />
+
+      {/* Quote card */}
+      <div onClick={() => setQIdx(i => (i+1) % QUOTES.length)} style={{
+        background:`linear-gradient(135deg, ${C.gold}18, transparent)`,
+        border:`1px solid ${C.gold}40`, borderRadius:20, padding:"20px 20px",
+        marginBottom:16, cursor:"pointer", position:"relative", overflow:"hidden",
+      }}>
+        <div style={{ fontSize:48, opacity:0.08, position:"absolute", top:5, right:12, lineHeight:1 }}>❝</div>
+        <div style={{ fontSize:15, fontWeight:600, color:C.text, lineHeight:1.7, fontStyle:"italic", marginBottom:10 }}>
+          "{QUOTES[qIdx].text}"
+        </div>
+        {QUOTES[qIdx].by && (
+          <div style={{ fontSize:11, color:C.gold }}>— {QUOTES[qIdx].by}</div>
+        )}
+        <div style={{ fontSize:10, color:C.muted, marginTop:8, letterSpacing:1 }}>TOCA PARA CAMBIAR ↻</div>
+      </div>
+
+      {/* AI Motivation */}
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:16, marginBottom:16 }}>
+        <div style={{ fontSize:10, letterSpacing:2, color:C.muted, textTransform:"uppercase", marginBottom:10 }}>
+          ✦ Coach IA personalizado
+        </div>
+        {aiMsg ? (
+          <div style={{ fontSize:14, color:C.text, lineHeight:1.7, marginBottom:12 }}>{aiMsg}</div>
+        ) : (
+          <div style={{ fontSize:13, color:C.muted, marginBottom:12, lineHeight:1.6 }}>
+            Genera un mensaje motivacional basado en tu progreso real de hoy.
+          </div>
+        )}
+        <button onClick={getAiMotivation} disabled={aiLoading} style={{
+          width:"100%", padding:"12px", borderRadius:12,
+          background: aiLoading ? C.dim : `linear-gradient(135deg, ${C.gold}, ${C.crimson})`,
+          border:"none", color: aiLoading ? C.muted : "#000",
+          fontSize:13, fontWeight:800, cursor: aiLoading ? "default" : "pointer",
+          letterSpacing:0.5,
+        }}>
+          {aiLoading ? "Generando mensaje..." : "⚡ Generar motivación con IA"}
+        </button>
+      </div>
+
+      {/* Stats */}
+      {[
+        { label:"Bloques completados", val:completedBlocks.length, total:BLOCKS.length, icon:"◎", color:C.gold },
+        { label:"Pasos SaaS listos",   val:completedSteps.length,  total:STEPS.length,  icon:"◈", color:C.crimson },
+        { label:"Puntos acumulados",   val:points,                  total:totalPts,      icon:"⭐", color:C.green },
+      ].map((s,i) => (
+        <div key={i} style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:14, padding:"13px 16px", marginBottom:8, display:"flex", alignItems:"center", gap:12 }}>
+          <div style={{ fontSize:22 }}>{s.icon}</div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontSize:12, color:C.muted, marginBottom:6 }}>{s.label}</div>
+            <Bar pct={(s.val/s.total)*100} color={s.color} height={5} />
+          </div>
+          <div style={{ fontSize:18, fontWeight:900, color:s.color, minWidth:32, textAlign:"right" }}>{s.val}</div>
+        </div>
+      ))}
+
+      {/* Mission */}
+      <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:16, padding:16, marginTop:4 }}>
+        <div style={{ fontSize:10, letterSpacing:2, color:C.crimson, textTransform:"uppercase", marginBottom:8 }}>
+          Tu misión
+        </div>
+        <div style={{ fontSize:13, color:C.text, lineHeight:1.75 }}>
+          Construir un SaaS de perfumería funcional y vendible que genere libertad financiera y permita escalar el impacto del coaching ontológico en LATAM, España y EE.UU.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════
+//  MAIN APP
+// ═══════════════════════════════════════════════
+
+const TABS = [
+  { id:"dashboard", icon:"⌂",  label:"Inicio"  },
+  { id:"day",       icon:"◎",  label:"Día"     },
+  { id:"saas",      icon:"◈",  label:"SaaS"    },
+  { id:"goals",     icon:"◇",  label:"Metas"   },
+  { id:"energy",    icon:"✦",  label:"Energía" },
+];
+
+export default function FounderMissionOS() {
+  const todayStr = new Date().toDateString();
+
+  const [completedBlocks, setCompletedBlocks] = useState(() => {
+    try { const d = JSON.parse(localStorage.getItem("fmos_d")||"{}"); return d.date===todayStr ? d.b||[] : []; }
+    catch { return []; }
+  });
+
+  const [completedSteps, setCompletedSteps] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("fmos_s")||"[]"); }
+    catch { return []; }
+  });
+
+  const [view, setView]   = useState("dashboard");
+  const [toast, setToast] = useState(null);
+  const [now, setNow]     = useState(new Date());
+
+  useEffect(() => {
+    localStorage.setItem("fmos_d", JSON.stringify({ date:todayStr, b:completedBlocks }));
+  }, [completedBlocks, todayStr]);
+
+  useEffect(() => {
+    localStorage.setItem("fmos_s", JSON.stringify(completedSteps));
+  }, [completedSteps]);
+
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 30000);
+    return () => clearInterval(t);
+  }, []);
+
+  const activeBlock = getActive(now);
+
+  const toggleBlock = (id) => {
+    setCompletedBlocks(prev => {
+      if (prev.includes(id)) return prev.filter(x => x !== id);
+      setToast("Cada tarea completada te acerca a crear tu empresa tecnológica.");
+      return [...prev, id];
+    });
+  };
+
+  const toggleStep = (i) => {
+    setCompletedSteps(prev => {
+      if (prev.includes(i)) return prev.filter(x => x !== i);
+      setToast("Estás un paso más cerca de lanzar tu aplicación.");
+      return [...prev, i];
+    });
+  };
+
+  const points = completedBlocks.reduce((s,id) => s + (BLOCKS.find(b=>b.id===id)?.pts||0), 0);
+
+  return (
+    <>
+      <style>{`
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { background: ${C.bg}; color: ${C.text}; font-family: -apple-system, 'SF Pro Display', 'Helvetica Neue', system-ui, sans-serif; overflow-x: hidden; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: ${C.dim}; border-radius: 2px; }
+        button { -webkit-tap-highlight-color: transparent; }
+        @keyframes fid { from { opacity:0; transform:translateX(-50%) translateY(-12px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+      `}</style>
+
+      <div style={{ background:C.bg, minHeight:"100vh", maxWidth:440, margin:"0 auto", position:"relative" }}>
+
+        {/* ── Top bar ── */}
+        <div style={{
+          position:"sticky", top:0, zIndex:200,
+          background:`${C.bg}ee`, backdropFilter:"blur(20px)",
+          borderBottom:`1px solid ${C.border}`,
+          padding:"11px 16px", display:"flex", alignItems:"center", justifyContent:"space-between",
+        }}>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <div style={{ width:7, height:7, borderRadius:"50%", background:C.gold }} />
+            <span style={{ fontSize:13, fontWeight:900, letterSpacing:1, color:C.text }}>FOUNDER MISSION OS</span>
+          </div>
+          <div style={{ fontSize:13, fontWeight:700, color:C.gold, letterSpacing:0.5 }}>
+            {fmtTime(now)}
+          </div>
+        </div>
+
+        {/* ── Daily progress strip ── */}
+        <div style={{ height:3, background:C.dim }}>
+          <div style={{
+            height:"100%",
+            width:`${Math.round((completedBlocks.length/BLOCKS.length)*100)}%`,
+            background:`linear-gradient(90deg, ${C.gold}, ${C.crimson})`,
+            transition:"width 0.6s ease",
+          }} />
+        </div>
+
+        {/* ── Content ── */}
+        <div style={{ paddingBottom:88, minHeight:"calc(100vh - 90px)", overflowY:"auto" }}>
+          {view==="dashboard" && <Dashboard completedBlocks={completedBlocks} completedSteps={completedSteps} points={points} now={now} activeBlock={activeBlock} />}
+          {view==="day"       && <DayView   completedBlocks={completedBlocks} onToggle={toggleBlock} activeBlock={activeBlock} />}
+          {view==="saas"      && <SaasView  completedSteps={completedSteps}   onToggle={toggleStep} />}
+          {view==="goals"     && <GoalsView completedSteps={completedSteps}   completedBlocks={completedBlocks} />}
+          {view==="energy"    && <EnergyView points={points} completedBlocks={completedBlocks} completedSteps={completedSteps} />}
+        </div>
+
+        {/* ── Bottom nav ── */}
+        <div style={{
+          position:"fixed", bottom:0,
+          left:"50%", transform:"translateX(-50%)",
+          width:"100%", maxWidth:440,
+          background:`${C.bg}f2`, backdropFilter:"blur(24px)",
+          borderTop:`1px solid ${C.border}`,
+          display:"flex", padding:"8px 0 14px", zIndex:200,
+        }}>
+          {TABS.map(tab => {
+            const active = view === tab.id;
+            return (
+              <button key={tab.id} onClick={() => setView(tab.id)} style={{
+                flex:1, background:"none", border:"none", cursor:"pointer",
+                display:"flex", flexDirection:"column", alignItems:"center", gap:3, padding:"5px 0",
+                position:"relative",
+              }}>
+                {active && (
+                  <div style={{ position:"absolute", top:0, left:"50%", transform:"translateX(-50%)", width:20, height:2, background:C.gold, borderRadius:1 }} />
+                )}
+                <div style={{ fontSize:20, color: active ? C.gold : C.muted, transition:"color 0.2s" }}>
+                  {tab.icon}
+                </div>
+                <div style={{ fontSize:9, letterSpacing:0.8, fontWeight:700, textTransform:"uppercase",
+                  color: active ? C.gold : C.muted, transition:"color 0.2s" }}>
+                  {tab.label}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* ── Toast ── */}
+        {toast && <Toast msg={toast} onDone={() => setToast(null)} />}
+      </div>
+    </>
+  );
+}
